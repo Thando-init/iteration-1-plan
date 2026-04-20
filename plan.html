@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot World — Iteration 1 Plan</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #F8F9FC;
+    color: #1A1A2E;
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .shell { max-width: 860px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .header {
+    background: #1A3C6E;
+    border-radius: 14px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .header-eye { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #9DB8E8; margin-bottom: 0.35rem; }
+  .header-title { font-size: 26px; font-weight: 600; color: #fff; margin-bottom: 0.3rem; }
+  .header-sub { font-size: 14px; color: #BDC9E8; line-height: 1.6; }
+
+  /* ── Rule banner ── */
+  .rule-banner {
+    border-left: 4px solid #F59E0B;
+    background: #FFFBEB;
+    border-radius: 0 10px 10px 0;
+    padding: 10px 16px;
+    margin-bottom: 1.25rem;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .rule-banner strong { color: #92400E; display: block; margin-bottom: 2px; }
+  .rule-banner span { color: #78350F; }
+
+  /* ── Stat row ── */
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .stat-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 10px; padding: 12px 14px; }
+  .stat-num { font-size: 24px; font-weight: 600; color: #1A1A2E; }
+  .stat-label { font-size: 12px; color: #6B7280; margin-top: 2px; }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .tab {
+    padding: 8px 16px; border-radius: 8px;
+    border: 1px solid #E5E7EB; font-size: 13px;
+    color: #6B7280; cursor: pointer; background: #fff;
+    transition: all 0.15s; font-family: inherit;
+  }
+  .tab:hover { background: #F3F4F6; }
+  .tab.active { background: #1A3C6E; color: #fff; border-color: #1A3C6E; font-weight: 500; }
+
+  /* ── Sections ── */
+  .section { display: none; }
+  .section.show { display: block; }
+  .week-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #9CA3AF; margin-bottom: 0.75rem;
+  }
+
+  /* ── Member grid ── */
+  .member-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .member-card { border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden; background: #fff; }
+  .member-head { padding: 12px 14px; }
+  .member-name { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+  .member-role { font-size: 11px; color: rgba(255,255,255,0.78); }
+  .member-body { padding: 10px 14px; }
+  .task-item {
+    display: flex; gap: 8px; align-items: flex-start;
+    font-size: 12.5px; color: #4B5563; line-height: 1.55;
+    padding: 6px 0; border-bottom: 1px solid #F3F4F6;
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+
+  /* ── Deliverables ── */
+  .del-member-label {
+    font-size: 13px; font-weight: 600; color: #1A1A2E;
+    margin: 1.25rem 0 0.5rem; padding-left: 2px;
+  }
+  .del-list { display: flex; flex-direction: column; gap: 8px; }
+  .del-row {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 14px; border: 1px solid #E5E7EB;
+    border-radius: 10px; background: #fff;
+  }
+  .del-badge {
+    font-size: 11px; font-weight: 600; padding: 3px 9px;
+    border-radius: 20px; white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+  }
+  .del-name { font-size: 13px; font-weight: 500; color: #1A1A2E; margin-bottom: 2px; font-family: 'Courier New', monospace; }
+  .del-desc { font-size: 12px; color: #6B7280; line-height: 1.55; }
+
+  /* ── Showcase ── */
+  .showcase-box {
+    border: 1px solid #2B71F0; border-radius: 12px;
+    padding: 1.25rem 1.5rem; background: #EFF4FF; margin-bottom: 1rem;
+  }
+  .showcase-eye { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #2B71F0; font-weight: 600; margin-bottom: 0.3rem; }
+  .showcase-title { font-size: 16px; font-weight: 600; color: #1A3C6E; margin-bottom: 0.9rem; }
+  .showcase-step { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+  .showcase-step:last-child { margin-bottom: 0; }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #2B71F0; color: #fff; font-size: 11px;
+    font-weight: 600; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
+  }
+  .step-text { font-size: 13px; color: #1A3C6E; line-height: 1.6; padding-top: 2px; }
+  .showcase-note { font-size: 13px; color: #6B7280; line-height: 1.7; }
+
+  /* ── Dependencies ── */
+  .dep-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid #E5E7EB; }
+  .dep-table thead { background: #1A3C6E; }
+  .dep-table th { padding: 10px 14px; font-size: 12px; font-weight: 600; color: #fff; text-align: left; }
+  .dep-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #F3F4F6; vertical-align: top; }
+  .dep-table tr:last-child td { border-bottom: none; }
+  .dep-table tr:nth-child(even) td { background: #F9FAFB; }
+  .urgent-badge { display: inline-block; font-size: 10px; font-weight: 600; background: #FEE2E2; color: #991B1B; border-radius: 10px; padding: 2px 7px; margin-left: 6px; }
+  .dep-note-cell { font-size: 12px; color: #6B7280; }
+
+  /* ── Team section ── */
+  .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .team-card {
+    border-radius: 12px; overflow: hidden; border: 1px solid #E5E7EB;
+  }
+  .team-card-head { padding: 14px 16px; }
+  .team-card-name { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+  .team-card-role { font-size: 11px; color: rgba(255,255,255,0.78); }
+  .team-card-body { padding: 12px 16px; background: #fff; }
+  .team-card-files { font-size: 11px; color: #6B7280; font-family: 'Courier New', monospace; line-height: 1.8; }
+
+  /* ── Footer ── */
+  .footer { text-align: center; font-size: 12px; color: #9CA3AF; margin-top: 2.5rem; line-height: 1.7; }
+
+  @media (max-width: 600px) {
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .member-grid { grid-template-columns: 1fr; }
+    .header { padding: 1.25rem 1.25rem; }
+    .header-title { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-eye">WeThinkCode_ &mdash; Robot World &mdash; Java</div>
+    <div class="header-title">Iteration 1 Plan &mdash; Weeks 1 &amp; 2</div>
+    <div class="header-sub">Team tasks, deliverables, the showcase target, and who is blocking whom.</div>
+  </div>
+
+  <!-- Rule -->
+  <div class="rule-banner">
+    <strong>Team rule &mdash; always runnable</strong>
+    <span>By the end of Week 2, the server must start, one client must connect, a robot must launch, and <code>look</code> must return a response. Never merge broken code into <code>main</code>.</span>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-row">
+    <div class="stat-card"><div class="stat-num">2</div><div class="stat-label">Weeks</div></div>
+    <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Team members</div></div>
+    <div class="stat-card"><div class="stat-num">14</div><div class="stat-label">Files to create</div></div>
+    <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Commands at showcase</div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('week1', this)">Week 1</button>
+    <button class="tab" onclick="showTab('week2', this)">Week 2</button>
+    <button class="tab" onclick="showTab('deliverables', this)">Deliverables</button>
+    <button class="tab" onclick="showTab('showcase', this)">Showcase</button>
+    <button class="tab" onclick="showTab('deps', this)">Dependencies</button>
+    <button class="tab" onclick="showTab('team', this)">Team</button>
+  </div>
+
+  <!-- Week 1 -->
+  <div class="section show" id="sec-week1">
+    <div class="week-label">Week 1 &mdash; Setup &amp; Core Infrastructure</div>
+    <div class="member-grid" id="w1-grid"></div>
+  </div>
+
+  <!-- Week 2 -->
+  <div class="section" id="sec-week2">
+    <div class="week-label">Week 2 &mdash; Integration &amp; First Working Commands</div>
+    <div class="member-grid" id="w2-grid"></div>
+  </div>
+
+  <!-- Deliverables -->
+  <div class="section" id="sec-deliverables">
+    <div class="week-label">What each member must deliver by end of Iteration 1</div>
+    <div class="del-list" id="del-list"></div>
+  </div>
+
+  <!-- Showcase -->
+  <div class="section" id="sec-showcase">
+    <div class="showcase-box">
+      <div class="showcase-eye">Iteration 1 showcase target</div>
+      <div class="showcase-title">The demo your team must be able to run</div>
+      <div id="showcase-steps"></div>
+    </div>
+    <p class="showcase-note">
+      The showcase is paired with another team. You demonstrate to them, they give feedback, then they demonstrate to you.
+      <strong>Mphele</strong> operates the server terminal. <strong>Neo</strong> operates the client terminal.
+      <strong>Thando</strong> presents the architecture overview and wiki.
+    </p>
+  </div>
+
+  <!-- Dependencies -->
+  <div class="section" id="sec-deps">
+    <div class="week-label">Who is blocking whom</div>
+    <table class="dep-table">
+      <thead>
+        <tr>
+          <th>Blocker</th>
+          <th>Blocks</th>
+          <th>Why</th>
+          <th>Priority</th>
+        </tr>
+      </thead>
+      <tbody id="dep-body"></tbody>
+    </table>
+    <p style="font-size:12px;color:#9CA3AF;margin-top:0.75rem;line-height:1.65">
+      If you are listed as a blocker, your Week 1 tasks are the highest priority on the whole team. Unblock your teammates first.
+    </p>
+  </div>
+
+  <!-- Team -->
+  <div class="section" id="sec-team">
+    <div class="week-label">Team member overview</div>
+    <div class="team-grid" id="team-grid"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Robot World &mdash; WeThinkCode_ OOP Curriculum &mdash; Iteration 1<br>
+    Mphele &bull; Bowie &bull; Sibongile &bull; Neo &bull; Thando
+  </div>
+
+</div>
+
+<script>
+const MEMBERS = [
+  { name:'Mphele',    role:'Server Lead',               color:'#1A3C6E', badge:'#EFF4FF', badgeText:'#1A3C6E',
+    files:['Server.java','ClientHandler.java','CommandParser.java','ResponseBuilder.java'] },
+  { name:'Bowie',     role:'World Architect',            color:'#065F46', badge:'#ECFDF5', badgeText:'#065F46',
+    files:['WorldConfig.java','World.java','Position.java','Direction.java','Obstacle.java','Mountain.java','Lake.java','Pit.java'] },
+  { name:'Sibongile', role:'Commands Lead',              color:'#78350F', badge:'#FFFBEB', badgeText:'#78350F',
+    files:['Command.java','CommandExecutor.java','LaunchCommand.java','LookCommand.java','StateCommand.java'] },
+  { name:'Neo',       role:'Client Lead',                color:'#4C1D95', badge:'#F5F3FF', badgeText:'#4C1D95',
+    files:['Client.java','ServerConnection.java','InputHandler.java','RequestBuilder.java','ResponseHandler.java'] },
+  { name:'Thando',    role:'Integration & Quality Lead', color:'#9D174D', badge:'#FDF2F8', badgeText:'#9D174D',
+    files:['JsonUtil.java','ProtocolConstants.java','GitLab Issues','Wiki (Architecture, Class, Domain Diagrams)','Integration test report'] },
+];
+
+const W1 = [
+  [
+    'Fork & clone the GitLab repo — set private access and add all 4 teammates with write access',
+    'Create Maven/Gradle project with server/, world/, client/, and common/ source directories',
+    'Write Server.java skeleton — main() reads port from args, creates ServerSocket, placeholder accept loop',
+    'Write ClientHandler.java skeleton — implements Runnable, holds a Socket, empty run()',
+    'Test: server starts, prints "waiting for connections", does not crash',
+  ],
+  [
+    'Create WorldConfig.java — all config fields (width, height, visibility, repair/reload seconds, max shields/shots) with defaults',
+    'Write config file loader — reads a JSON or properties file from a given path, throws a clear error if file is missing',
+    'Create Position.java — immutable value object: int x, int y, equals(), hashCode()',
+    'Create Direction.java enum — NORTH, SOUTH, EAST, WEST with turnLeft(), turnRight(), getOpposite()',
+    'Create World.java skeleton — constructor takes WorldConfig, initialises empty robot HashMap',
+  ],
+  [
+    'Create Command.java interface with the execute() method signature',
+    'Create CommandExecutor.java — a Map from command name string to Command class',
+    'Write LaunchCommand.java skeleton — constructor, validate argument types, stub for World interaction',
+    'Study the full launch protocol spec carefully — know every field in the success and both error responses',
+  ],
+  [
+    'Write Client.java — parse IP and port from command-line args, print usage and exit if missing',
+    'Write ServerConnection.java — create Socket, open PrintStream and BufferedReader, sendRequest(), readResponse(), close()',
+    'Test: client connects to a running server without crashing (even before any commands work)',
+    'Write RequestBuilder.java — builds a valid JSON launch request string using JsonUtil',
+  ],
+  [
+    'Write JsonUtil.java — static toJson(Object) and fromJson(String, Class) wrapping Jackson ObjectMapper',
+    'Write ProtocolConstants.java — all command name strings and JSON field name strings as public constants',
+    'Create GitLab issues for every task in Iteration 1 — assign each issue to the correct member with the Iteration 1 milestone',
+    'Set up the GitLab wiki — create Architecture Overview page with a first-draft diagram showing the three modules',
+    'Confirm everyone has a working JDK, IDE, and Maven/Gradle setup before end of Day 1',
+  ],
+];
+
+const W2 = [
+  [
+    'Complete ClientHandler.java — full while loop: readLine → CommandParser → CommandExecutor → ResponseBuilder → send',
+    'Write CommandParser.java — deserialise JSON, extract robot/command/arguments, return ParsedRequest or error result',
+    'Write ResponseBuilder.java — serialise CommandResult objects into valid JSON response strings',
+    'Wire the full pipeline: Server → ClientHandler → CommandParser → CommandExecutor → ResponseBuilder',
+    'Integration test with telnet or a hardcoded test client before Neo\'s client is ready',
+  ],
+  [
+    'Complete World.java — placeRobot(), removeRobot(), isFree(Position), getRobotByName(), getObstacles()',
+    'Create Obstacle.java base class/interface — contains(Position), blocksMovement(), blocksVision()',
+    'Create Mountain.java, Lake.java, Pit.java — correct implementations of the Obstacle interface',
+    'Load obstacle definitions from WorldConfig and register them in World at construction time',
+    'Test: create a World, place a robot, check positions, call isFree() — all without a running server',
+  ],
+  [
+    'Complete LaunchCommand.java — all success and error cases: name taken, world full, shields over max',
+    'Write LookCommand.java — scan all four directions, stop at mountains, report OBSTACLE/ROBOT/EDGE with direction and distance',
+    'Write StateCommand.java — return current robot state with zero world changes',
+    'Test each command by calling execute() directly with a constructed World and Robot — no network needed',
+  ],
+  [
+    'Write InputHandler.java — prompt loop, parse player input, send via ServerConnection, pass response to ResponseHandler',
+    'Write ResponseHandler.java — handle OK and ERROR, display launch and look responses in human-readable format',
+    'Complete Client.java — full launch flow then hand off to InputHandler loop',
+    'End-to-end integration test: real client → real server → launch a robot → run look → verify response on console',
+  ],
+  [
+    'Write the full integration test plan — every scenario to check before the showcase',
+    'Run the end-to-end test: connect real client, launch robot, run look — document what passes and what fails',
+    'Update GitLab wiki with Class Diagram and Domain Diagram',
+    'Close all completed GitLab issues, open new issues for any bugs found during integration',
+    'Script and rehearse the showcase demonstration with the full team — run it at least once before the real thing',
+  ],
+];
+
+const DELIVERABLES = [
+  { member:0, items:[
+    { name:'Server.java', desc:'Starts up, creates ServerSocket, spawns a ClientHandler thread per connection' },
+    { name:'ClientHandler.java', desc:'Full read-process-respond loop running on its own thread' },
+    { name:'CommandParser.java', desc:'Deserialises JSON request strings and handles malformed input gracefully' },
+    { name:'ResponseBuilder.java', desc:'Serialises command results into valid JSON response strings' },
+  ]},
+  { member:1, items:[
+    { name:'WorldConfig.java', desc:'Loads all world parameters from a config file; throws clear errors on bad input' },
+    { name:'World.java', desc:'Manages robots and obstacles; place, remove, and query positions' },
+    { name:'Position.java', desc:'Immutable (x,y) value object with equals() and hashCode()' },
+    { name:'Direction.java', desc:'NORTH/SOUTH/EAST/WEST enum with turn and opposite logic' },
+    { name:'Obstacle.java + Mountain + Lake + Pit', desc:'Base interface and three concrete obstacle types loaded from config' },
+  ]},
+  { member:2, items:[
+    { name:'Command.java interface', desc:'Defines the execute() contract all command classes must implement' },
+    { name:'CommandExecutor.java', desc:'Routes command name strings to the correct Command class' },
+    { name:'LaunchCommand.java', desc:'Full implementation: validates args, places robot, returns all required response fields' },
+    { name:'LookCommand.java', desc:'Scans four directions, stops at mountains, returns objects with type/direction/distance' },
+    { name:'StateCommand.java', desc:'Returns current robot state with no world modifications' },
+  ]},
+  { member:3, items:[
+    { name:'Client.java', desc:'Parses IP and port from args, runs the launch flow, hands off to InputHandler' },
+    { name:'ServerConnection.java', desc:'Wraps the socket; sendRequest() and readResponse() are the only public interface' },
+    { name:'InputHandler.java', desc:'Main command loop: prompt → read → build request → send → display response' },
+    { name:'RequestBuilder.java', desc:'Produces valid JSON request strings for any command' },
+    { name:'ResponseHandler.java', desc:'Displays launch and look responses in clear human-readable format' },
+  ]},
+  { member:4, items:[
+    { name:'JsonUtil.java', desc:'Shared toJson() and fromJson() wrapper — must be available from Day 1 of Week 1' },
+    { name:'ProtocolConstants.java', desc:'Every protocol string constant in one file — no magic strings anywhere else' },
+    { name:'GitLab issues', desc:'Every task has an issue, assigned to the right member, with the Iteration 1 milestone' },
+    { name:'Wiki — Architecture Overview', desc:'First-draft diagram showing server, client, and common modules' },
+    { name:'Wiki — Class Diagram & Domain Diagram', desc:'Updated by end of Week 2 to reflect the real implementation' },
+    { name:'Integration test report', desc:'Documents what passed and what broke during end-to-end testing before the showcase' },
+  ]},
+];
+
+const SHOWCASE_STEPS = [
+  { num:1, text:'<strong>Mphele</strong> starts the server from the terminal — it prints the port, world size, and obstacle count' },
+  { num:2, text:'<strong>Neo</strong> connects a client from a second terminal, entering the server IP and port as arguments' },
+  { num:3, text:'<strong>Neo</strong> types the launch command — the client sends it and displays the success response with position and world config' },
+  { num:4, text:'<strong>Neo</strong> types <code>look</code> — the client displays every visible object with direction, type, and distance' },
+  { num:5, text:'<strong>Neo</strong> types <code>state</code> — the client displays the robot\'s current position, direction, shields, shots, and status' },
+  { num:6, text:'<strong>Mphele</strong> types <code>robots</code> at the server console — it lists the robot with its full state' },
+  { num:7, text:'<strong>Thando</strong> shows the GitLab wiki — Architecture Overview, Class Diagram, and Domain Diagram are all visible and up to date' },
+];
+
+const DEPS = [
+  { from:'Thando', blocks:'Everyone', why:'JsonUtil & ProtocolConstants are needed by every other member from Day 1', urgent:true },
+  { from:'Mphele', blocks:'Sibongile', why:'CommandExecutor needs the full server pipeline (CommandParser, ResponseBuilder) to be wired', urgent:true },
+  { from:'Mphele', blocks:'Neo', why:'Server must be running for real end-to-end integration tests', urgent:true },
+  { from:'Bowie',  blocks:'Sibongile', why:'All command classes need the World API to be defined — at minimum placeRobot() and isFree()', urgent:false },
+  { from:'Bowie',  blocks:'Mphele', why:'World is needed by ClientHandler to pass to CommandExecutor when executing commands', urgent:false },
+  { from:'Sibongile', blocks:'Neo', why:'ResponseHandler must know the exact structure of each command\'s response to display it correctly', urgent:false },
+];
+
+function showTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('show'));
+  btn.classList.add('active');
+  document.getElementById('sec-' + tab).classList.add('show');
+}
+
+function buildGrid(tasks, gridId) {
+  const grid = document.getElementById(gridId);
+  MEMBERS.forEach((m, i) => {
+    const card = document.createElement('div');
+    card.className = 'member-card';
+
+    const head = document.createElement('div');
+    head.className = 'member-head';
+    head.style.background = m.color;
+    head.innerHTML = `<div class="member-name">${m.name}</div><div class="member-role">${m.role}</div>`;
+
+    const body = document.createElement('div');
+    body.className = 'member-body';
+    tasks[i].forEach(t => {
+      const row = document.createElement('div');
+      row.className = 'task-item';
+      const dot = document.createElement('div');
+      dot.className = 'task-dot';
+      dot.style.background = m.color;
+      const txt = document.createElement('span');
+      txt.textContent = t;
+      row.appendChild(dot);
+      row.appendChild(txt);
+      body.appendChild(row);
+    });
+
+    card.appendChild(head);
+    card.appendChild(body);
+    grid.appendChild(card);
+  });
+}
+
+function buildDeliverables() {
+  const list = document.getElementById('del-list');
+  DELIVERABLES.forEach(d => {
+    const m = MEMBERS[d.member];
+    const label = document.createElement('div');
+    label.className = 'del-member-label';
+    label.textContent = `${m.name} — ${m.role}`;
+    list.appendChild(label);
+
+    d.items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'del-row';
+
+      const badge = document.createElement('div');
+      badge.className = 'del-badge';
+      badge.style.background = m.badge;
+      badge.style.color = m.badgeText;
+      badge.textContent = m.name;
+
+      const content = document.createElement('div');
+      content.style.flex = '1';
+      content.innerHTML = `<div class="del-name">${item.name}</div><div class="del-desc">${item.desc}</div>`;
+
+      row.appendChild(badge);
+      row.appendChild(content);
+      list.appendChild(row);
+    });
+  });
+}
+
+function buildShowcase() {
+  const container = document.getElementById('showcase-steps');
+  SHOWCASE_STEPS.forEach(s => {
+    const step = document.createElement('div');
+    step.className = 'showcase-step';
+    step.innerHTML = `<div class="step-num">${s.num}</div><div class="step-text">${s.text}</div>`;
+    container.appendChild(step);
+  });
+}
+
+function buildDeps() {
+  const tbody = document.getElementById('dep-body');
+  DEPS.forEach((d, i) => {
+    const tr = document.createElement('tr');
+    const fromMember = MEMBERS.find(m => m.name === d.from);
+    tr.innerHTML = `
+      <td style="font-weight:600;color:${fromMember.color}">${d.from}</td>
+      <td style="color:#1A1A2E;font-weight:500">${d.blocks}</td>
+      <td class="dep-note-cell">${d.why}</td>
+      <td>${d.urgent
+        ? '<span class="urgent-badge">High priority</span>'
+        : '<span style="font-size:12px;color:#6B7280">Normal</span>'
+      }</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function buildTeam() {
+  const grid = document.getElementById('team-grid');
+  MEMBERS.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'team-card';
+
+    const head = document.createElement('div');
+    head.className = 'team-card-head';
+    head.style.background = m.color;
+    head.innerHTML = `<div class="team-card-name">${m.name}</div><div class="team-card-role">${m.role}</div>`;
+
+    const body = document.createElement('div');
+    body.className = 'team-card-body';
+    body.innerHTML = `<div class="team-card-files">${m.files.join('<br>')}</div>`;
+
+    card.appendChild(head);
+    card.appendChild(body);
+    grid.appendChild(card);
+  });
+}
+
+buildGrid(W1, 'w1-grid');
+buildGrid(W2, 'w2-grid');
+buildDeliverables();
+buildShowcase();
+buildDeps();
+buildTeam();
+</script>
+</body>
+</html>
